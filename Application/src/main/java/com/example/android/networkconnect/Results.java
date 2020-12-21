@@ -3,51 +3,66 @@ package com.example.android.networkconnect;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
-public class Info {
+public class Results {
 
-    @SerializedName("count")
+    @SerializedName("id")
     @Expose
-    private Integer count;
-    @SerializedName("pages")
+    private Integer id;
+
+    @SerializedName("name")
     @Expose
-    private Integer pages;
-    @SerializedName("next")
+    private String name;
+
+    @SerializedName("status")
     @Expose
-    private String next;
+    private String status;
 
-    @SerializedName("prev")
+    @SerializedName("species")
     @Expose
-    private String prev;
+    private String species;
 
-    public Integer getCount() {
-        return count;
+
+    @SerializedName("image")
+    @Expose
+    private String image;
+
+    public Integer getId() {
+        return id;
     }
 
-    public void setCount(Integer count) {
-        this.count = count;
+    public void setId(Integer id) {
+        this.id = id;
     }
 
-    public Integer getPages() {
-        return pages;
+    public String getName() {
+        return name;
     }
 
-    public void setPages(Integer pages) {
-        this.pages = pages;
+    public void setName(String name) {
+        this.name = name;
     }
 
-    public String getNext() {
-        return next;
+    public String getStatus() {
+        return status;
     }
 
-    public void setNext(String next) {
-        this.next = next;
+    public void setStatus(String status) {
+        this.status = status;
     }
 
-    public String getPrev() {
-        return prev;
+    public String getSpecies() {
+        return species;
     }
 
-    public void setPrev(String prev) {
-        this.prev = prev;
+    public void setSpecies(String species) {
+        this.species = species;
+    }
+
+    public String getImage() {
+        return image;
+    }
+
+    public void setImage(String image) {
+        this.image = image;
     }
 }

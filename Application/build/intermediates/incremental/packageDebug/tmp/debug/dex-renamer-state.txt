@@ -1,4 +1,4 @@
-#Thu Dec 10 14:36:05 CST 2020
-base.0=/Users/bliss/Downloads/connectivity-samples/NetworkConnect/Application/build/intermediates/dex/debug/mergeDexDebug/out
+#Mon Dec 21 16:30:33 COT 2020
+base.0=/Users/alejandrovasquez/Documents/jayaandroid/Android_networking_challenge/Application/build/intermediates/dex/debug/mergeDexDebug/out
 path.0=classes.dex
 renamed.0=classes.dex

@@ -26,11 +26,17 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.util.Log;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+
+import org.json.JSONObject;
+
+import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.Reader;
 import java.net.URL;
+import java.util.List;
 
 import javax.net.ssl.HttpsURLConnection;
 
@@ -65,7 +71,8 @@ public class NetworkFragment extends Fragment {
             networkFragment.setArguments(args);
             fragmentManager.beginTransaction().add(networkFragment, TAG).commit();
         }
-        return networkFragment;
+
+         return networkFragment;
     }
 
     @Override
@@ -80,7 +87,7 @@ public class NetworkFragment extends Fragment {
     public void onAttach(Context context) {
         super.onAttach(context);
         // Host Activity will handle callbacks from task.
-        mCallback = (DownloadCallback)context;
+        mCallback = (DownloadCallback) context;
     }
 
     @Override
@@ -130,9 +137,13 @@ public class NetworkFragment extends Fragment {
         class Result {
             public String mResultValue;
             public Exception mException;
-            public Result(String resultValue) {
+            public List<Results> mResults;
+
+            public Result(String resultValue, List<Results> results) {
                 mResultValue = resultValue;
+                mResults = results;
             }
+
             public Result(Exception exception) {
                 mException = exception;
             }
@@ -149,7 +160,7 @@ public class NetworkFragment extends Fragment {
                         (networkInfo.getType() != ConnectivityManager.TYPE_WIFI
                                 && networkInfo.getType() != ConnectivityManager.TYPE_MOBILE)) {
                     // If no connectivity, cancel task and update Callback with null data.
-                    mCallback.updateFromDownload(null);
+                    mCallback.updateFromDownload(null, null);
                     cancel(true);
                 }
             }
@@ -161,17 +172,23 @@ public class NetworkFragment extends Fragment {
         @Override
         protected Result doInBackground(String... urls) {
             Result result = null;
+            List<Results> results = null;
             if (!isCancelled() && urls != null && urls.length > 0) {
                 String urlString = urls[0];
                 try {
                     URL url = new URL(urlString);
                     String resultString = downloadUrl(url);
                     if (resultString != null) {
-                        result = new Result(resultString);
+
+                        JSONObject obj = new JSONObject(resultString);
+                        Gson gson = new GsonBuilder().create();
+                        Response response = gson.fromJson(obj.toString(), Response.class);
+                        result = new Result(resultString, response.getResults());
+
                     } else {
                         throw new IOException("No response received.");
                     }
-                } catch(Exception e) {
+                } catch (Exception e) {
                     result = new Result(e);
                 }
             }
@@ -196,9 +213,9 @@ public class NetworkFragment extends Fragment {
         protected void onPostExecute(Result result) {
             if (result != null && mCallback != null) {
                 if (result.mException != null) {
-                    mCallback.updateFromDownload(result.mException.getMessage());
+                    mCallback.updateFromDownload(result.mException.getMessage(), null);
                 } else if (result.mResultValue != null) {
-                    mCallback.updateFromDownload(result.mResultValue);
+                    mCallback.updateFromDownload(result.mResultValue, result.mResults);
                 }
                 mCallback.finishDownloading();
             }
@@ -219,7 +236,7 @@ public class NetworkFragment extends Fragment {
         private String downloadUrl(URL url) throws IOException {
             InputStream stream = null;
             HttpsURLConnection connection = null;
-            String result = null;
+            String result = "";
             try {
                 connection = (HttpsURLConnection) url.openConnection();
                 // Timeout for reading InputStream arbitrarily set to 3000ms.
@@ -243,7 +260,17 @@ public class NetworkFragment extends Fragment {
                 publishProgress(DownloadCallback.Progress.GET_INPUT_STREAM_SUCCESS, 0);
                 if (stream != null) {
                     // Converts Stream to String with max length of 500.
-                    result = readStream(stream, 500);
+//                    result = readStream(stream, 500);
+
+                    BufferedReader rd = new BufferedReader(new InputStreamReader(
+                            connection.getInputStream()));
+                    String line;
+                    while ((line = rd.readLine()) != null) {
+                        Log.i("data", line);
+                        result = result + line;
+                    }
+
+
                     publishProgress(DownloadCallback.Progress.PROCESS_INPUT_STREAM_SUCCESS, 0);
                 }
             } finally {
@@ -258,7 +285,7 @@ public class NetworkFragment extends Fragment {
             return result;
         }
 
-        /**
+         /**
          * Converts the contents of an InputStream to a String.
          */
         private String readStream(InputStream stream, int maxLength) throws IOException {
