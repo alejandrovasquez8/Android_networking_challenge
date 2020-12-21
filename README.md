@@ -29,6 +29,12 @@ for managing longer running background work.
 [5]: https://developer.android.com/reference/android/app/IntentService.html
 [6]: https://developer.android.com/reference/android/content/AsyncTaskLoader.html
 
+
+Test finished GIF
+--------------
+
+<img src="screenshots/test.gif" height="400" alt="Screenshot"/> 
+
 Pre-requisites
 --------------
 
